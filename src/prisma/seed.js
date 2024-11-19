@@ -12,12 +12,12 @@ const loadData = async () => {
   await prisma.user.deleteMany({});
 
   // Load data from JSON files
-  const usersData = JSON.parse(fs.readFileSync('./src/data/users.json', 'utf8'));
-  const hostsData = JSON.parse(fs.readFileSync('./src/data/hosts.json', 'utf8'));
-  const propertiesData = JSON.parse(fs.readFileSync('./src/data/properties.json', 'utf8'));
-  const amenitiesData = JSON.parse(fs.readFileSync('./src/data/amenities.json', 'utf8'));
-  const bookingsData = JSON.parse(fs.readFileSync('./src/data/bookings.json', 'utf8'));
-  const reviewsData = JSON.parse(fs.readFileSync('./src/data/reviews.json', 'utf8'));
+  const usersData = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
+  const hostsData = JSON.parse(fs.readFileSync('./data/hosts.json', 'utf8'));
+  const propertiesData = JSON.parse(fs.readFileSync('./data/properties.json', 'utf8'));
+  const amenitiesData = JSON.parse(fs.readFileSync('./data/amenities.json', 'utf8'));
+  const bookingsData = JSON.parse(fs.readFileSync('./data/bookings.json', 'utf8'));
+  const reviewsData = JSON.parse(fs.readFileSync('./data/reviews.json', 'utf8'));
 
 
   // Insert Users

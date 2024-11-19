@@ -6,9 +6,10 @@ CREATE TABLE `User` (
     `name` VARCHAR(191) NULL,
     `password` VARCHAR(191) NULL,
     `phoneNumber` VARCHAR(191) NULL,
-    `profilePicture` VARCHAR(191) NOT NULL,
+    `profilePicture` VARCHAR(191) NULL,
 
     UNIQUE INDEX `User_username_key`(`username`),
+    INDEX `User_email_idx`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -20,9 +21,12 @@ CREATE TABLE `Host` (
     `email` VARCHAR(191) NOT NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NULL,
-    `profilePicture` VARCHAR(191) NOT NULL,
-    `aboutMe` VARCHAR(191) NOT NULL,
+    `profilePicture` VARCHAR(191) NULL,
+    `aboutMe` VARCHAR(191) NULL,
+    `address` VARCHAR(191) NULL,
 
+    UNIQUE INDEX `Host_username_key`(`username`),
+    INDEX `Host_email_idx`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -37,8 +41,10 @@ CREATE TABLE `Property` (
     `bathRoomCount` INTEGER NOT NULL,
     `maxGuestCount` INTEGER NOT NULL,
     `hostId` VARCHAR(191) NOT NULL,
-    `rating` INTEGER NOT NULL,
+    `rating` INTEGER NULL DEFAULT 0,
 
+    INDEX `Property_location_idx`(`location`),
+    INDEX `Property_hostId_idx`(`hostId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -53,14 +59,16 @@ CREATE TABLE `Amenity` (
 -- CreateTable
 CREATE TABLE `Booking` (
     `id` VARCHAR(191) NOT NULL,
-    `checkin` DATETIME(3) NULL,
-    `checkout` DATETIME(3) NULL,
+    `checkinDate` DATETIME(3) NULL,
+    `checkoutDate` DATETIME(3) NULL,
     `userId` VARCHAR(191) NOT NULL,
     `propertyId` VARCHAR(191) NOT NULL,
     `numberOfGuests` INTEGER NOT NULL,
     `totalPrice` DECIMAL(10, 2) NOT NULL,
     `bookingStatus` VARCHAR(191) NOT NULL,
 
+    INDEX `Booking_userId_idx`(`userId`),
+    INDEX `Booking_propertyId_idx`(`propertyId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -72,6 +80,8 @@ CREATE TABLE `Review` (
     `comment` VARCHAR(191) NOT NULL,
     `propertyId` VARCHAR(191) NOT NULL,
 
+    INDEX `Review_userId_idx`(`userId`),
+    INDEX `Review_propertyId_idx`(`propertyId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

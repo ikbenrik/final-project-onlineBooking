@@ -43,5 +43,14 @@
       "email": "stevemiller@example.com",
       "phoneNumber": "123-456-7894",
       "profilePicture": "https://example.com/smiller-profile-pic.jpg"
+    },
+    {
+      "id": "cb225fee-834a-40a6-8a15-e687cd6d292b",
+      "username": "hairyharry",
+      "password": "qwerty",
+      "name": "Hairy Harry",
+      "email": "hairyharry@example.com",
+      "phoneNumber": "123-456-7474",
+      "profilePicture": "https://example.com/hairy-profile-pic.jpg"
     }
   ]

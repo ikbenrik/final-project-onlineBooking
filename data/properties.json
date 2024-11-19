@@ -58,5 +58,17 @@
       "maxGuestCount": 5,
       "hostId": "f1234567-89ab-cdef-0123-456789abcdef",
       "rating": 5
+    },
+    {
+      "id": "i1234567-89f0-1234-5678-9abcdef01234",
+      "title": "Lakeside cabin",
+      "description": "Experience tranquility in our cozy cabin at a beautiful lake.",
+      "location": "Rocky Mountains, Colorado",
+      "pricePerNight": 105.5,
+      "bedroomCount": 4,
+      "bathRoomCount": 2,
+      "maxGuestCount": 6,
+      "hostId": "f1234567-89ab-cdef-0123-456789abcdef",
+      "rating": 5
     }
 ]

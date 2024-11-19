@@ -1,0 +1,101 @@
+generator client {
+  provider     = "prisma-client-js"
+  relationMode = "prisma"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode      = "prisma"
+}
+
+// Model voor gebruikers
+model User {
+  id             String     @id @default(uuid())
+  username       String     @unique
+  email          String     
+  name           String?
+  password       String?
+  phoneNumber    String?
+  profilePicture String?
+  bookings       Booking[]
+  reviews        Review[]
+
+  @@index([email]) // Index op email voor snellere opvraging
+}
+
+// Model voor hosts
+model Host {
+  id             String     @id @default(uuid())
+  username       String     @unique
+  password       String
+  email          String     
+  phoneNumber    String
+  name           String?
+  profilePicture String?
+  aboutMe        String?
+  address        String?
+  listings       Property[]  
+
+  @@index([email]) // Index op email voor snellere opvraging
+}
+
+// Model voor eigendommen
+model Property {
+  id            String      @id @default(uuid())
+  title         String
+  description   String
+  location      String
+  pricePerNight Decimal     @db.Decimal(10, 2)
+  bedroomCount  Int
+  bathRoomCount Int
+  maxGuestCount Int
+  hostId        String
+  rating        Int?        @default(0) // Optional, default to 0
+  host          Host        @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  amenities     Amenity[]   @relation("PropertyAmenities")
+  bookings      Booking[]
+  reviews       Review[]    
+
+  @@index([location]) // Index op locatie voor snellere zoekopdrachten
+  @@index([hostId])    // Index op hostId voor snellere opvraging op host
+}
+
+// Model voor voorzieningen (amenities)
+model Amenity {
+  id         String       @id @default(uuid())
+  name       String
+  properties Property[]   @relation("PropertyAmenities")
+}
+
+// Model voor boekingen
+model Booking {
+  id             String    @id @default(uuid())
+  checkinDate        DateTime?
+  checkoutDate       DateTime?
+  userId         String
+  propertyId     String
+  numberOfGuests Int
+  totalPrice     Decimal   @db.Decimal(10, 2)
+  bookingStatus  String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property       Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([userId])      // Index voor snellere opvragingen op gebruikers-ID
+  @@index([propertyId])  // Index voor snellere opvragingen op property-ID
+}
+
+// Model voor recensies
+model Review {
+  id         String    @id @default(uuid())
+  userId     String
+  rating     Int
+  comment    String
+  propertyId String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([userId])     // Index voor snellere opvragingen op gebruikers-ID
+  @@index([propertyId]) // Index voor snellere opvragingen op property-ID
+}
