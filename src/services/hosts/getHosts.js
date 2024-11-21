@@ -1,8 +1,17 @@
 import prisma from '../../prisma/client.js';
 
-export const getHosts = async () => {
+export const getHosts = async (filters) => {
   try {
+    const query = {};
+    if (filters && filters.name) {
+      query.name = {
+        contains: filters.name,
+        mode: 'insensitive',
+      };
+    }
+
     const hosts = await prisma.host.findMany({
+      where: query,
       select: {
         id: true,
         username: true,

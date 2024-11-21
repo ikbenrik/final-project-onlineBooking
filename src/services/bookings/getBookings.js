@@ -1,8 +1,17 @@
 import prisma from '../../prisma/client.js';
 
-export const getBookings = async () => {
+export const getBookings = async (filters = {}) => {
   try {
-    const bookings = await prisma.booking.findMany();
+    const whereClause = {};
+
+    // Voeg filters toe op basis van queryparameters
+    if (filters.userId) {
+      whereClause.userId = filters.userId;
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: whereClause,
+    });
 
     // Map schema fields to API response fields
     return bookings.map((booking) => ({

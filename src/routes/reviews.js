@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenticateToken } from '../middleware/auth.js'; // Import middleware
 import { getReviews } from '../services/reviews/getReviews.js';
 import { getReviewById } from '../services/reviews/getReviewById.js';
 import { createReview } from '../services/reviews/createReview.js';
@@ -7,10 +8,11 @@ import { deleteReview } from '../services/reviews/deleteReview.js';
 
 const router = express.Router();
 
-// GET /reviews - Fetch all reviews
+// GET /reviews - Fetch all reviews (Public Route)
 router.get('/', async (req, res) => {
+  const { userId, propertyId } = req.query; // Accept query parameters
   try {
-    const reviews = await getReviews();
+    const reviews = await getReviews({ userId, propertyId }); // Pass filters to the service
     if (!reviews || reviews.length === 0) {
       return res.status(404).json({ message: 'No reviews found' });
     }
@@ -21,7 +23,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /reviews/:id - Fetch a review by ID
+// GET /reviews/:id - Fetch a review by ID (Public Route)
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -40,8 +42,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /reviews - Create a new review
-router.post('/', async (req, res) => {
+// POST /reviews - Create a new review (Protected Route)
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const newReview = await createReview(req.body);
     res.status(201).json(newReview);
@@ -51,9 +53,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-// PUT /reviews/:id - Update a review by ID
-router.put('/:id', async (req, res) => {
+// PUT /reviews/:id - Update a review by ID (Protected Route)
+router.put('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const updatedData = req.body;
 
@@ -73,8 +74,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /reviews/:id - Delete a review by ID
-router.delete('/:id', async (req, res) => {
+// DELETE /reviews/:id - Delete a review by ID (Protected Route)
+router.delete('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   if (!id) {

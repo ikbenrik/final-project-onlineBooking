@@ -59,6 +59,7 @@ model Property {
   reviews       Review[]    
 
   @@index([location]) // Index op locatie voor snellere zoekopdrachten
+  @@index([pricePerNight])   // Index for filtering by pricePerNight
   @@index([hostId])    // Index op hostId voor snellere opvraging op host
 }
 

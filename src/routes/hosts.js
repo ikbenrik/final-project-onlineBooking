@@ -4,6 +4,7 @@ import { getHostById } from '../services/hosts/getHostById.js';
 import { createHost } from '../services/hosts/createHost.js';
 import { updateHost } from '../services/hosts/updateHost.js';
 import { deleteHost } from '../services/hosts/deleteHost.js';
+import { authenticateToken } from '../middleware/auth.js'; // Import the authentication middleware
 
 const router = express.Router();
 
@@ -20,9 +21,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
-
-
 
 // GET /hosts/:id - Fetch a host by ID
 router.get('/:id', async (req, res) => {
@@ -42,7 +40,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /hosts - Create a new host
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { username, password, email } = req.body;
 
@@ -63,8 +61,9 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' }); // Catch-all for server errors
   }
 });
+
 // PUT /hosts/:id - Update a host by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const updatedHost = await updateHost(req.params.id, req.body);
     if (!updatedHost) {
@@ -78,7 +77,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /hosts/:id - Delete a host by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const isDeleted = await deleteHost(req.params.id);
     if (!isDeleted) {

@@ -4,13 +4,17 @@ import { getBookingById } from '../services/bookings/getBookingById.js';
 import { createBooking } from '../services/bookings/createBooking.js';
 import { updateBooking } from '../services/bookings/updateBooking.js';
 import { deleteBooking } from '../services/bookings/deleteBooking.js';
+import { authenticateToken } from '../middleware/auth.js'; // Import the middleware
 
 const router = express.Router();
+
+// Use authentication middleware for all routes
+router.use(authenticateToken);
 
 // GET /bookings - Fetch all bookings
 router.get('/', async (req, res) => {
   try {
-    const bookings = await getBookings();
+    const bookings = await getBookings(req.query); // Pass query params for filtering
     if (!Array.isArray(bookings) || bookings.length === 0) {
       return res.status(404).json({ error: 'No bookings found' });
     }
@@ -35,23 +39,13 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    res.status(200).json({
-      id: booking.id,
-      userId: booking.userId,
-      propertyId: booking.propertyId,
-      checkinDate: booking.checkinDate, 
-      checkoutDate: booking.checkoutDate,
-      numberOfGuests: booking.numberOfGuests,
-      totalPrice: booking.totalPrice,
-      bookingStatus: booking.bookingStatus,
-    });
+    res.status(200).json(booking);
   } catch (error) {
     console.error("Error in GET /bookings/:id route:", error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// POST /bookings - Create a new booking
 // POST /bookings - Create a new booking
 router.post('/', async (req, res) => {
   const data = req.body;
@@ -85,8 +79,8 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const newBooking = await createBooking(data); // Use the service function to create the booking
-    res.status(201).json(newBooking); // Return the newly created booking
+    const newBooking = await createBooking(data);
+    res.status(201).json(newBooking);
   } catch (error) {
     console.error('Error creating booking:', error.message || error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -123,7 +117,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const isDeleted = await deleteBooking(id);
     if (!isDeleted) {
-      return res.status(404).json({ error: 'Booking not found' }); 
+      return res.status(404).json({ error: 'Booking not found' });
     }
     res.status(200).json({ message: 'Booking deleted successfully' });
   } catch (error) {
@@ -131,4 +125,5 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete booking' });
   }
 });
+
 export default router;
