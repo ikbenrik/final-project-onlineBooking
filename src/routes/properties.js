@@ -8,22 +8,47 @@ import { authenticateToken } from '../middleware/auth.js'; // Middleware for aut
 
 const router = express.Router();
 
-// GET /properties - Fetch all properties with optional filtering
+// GET /properties - Fetch all properties with optional filters
 router.get('/', async (req, res) => {
   try {
-    const { location, pricePerNight } = req.query;
     const filters = {};
-    if (location) filters.location = location;
-    if (pricePerNight) filters.pricePerNight = parseFloat(pricePerNight);
 
-    const properties = await getProperties(filters); // Pass filters to service
-    if (!properties.length) {
-      return res.status(404).json({ message: 'No properties found' });
+    // Apply filters for location
+    if (req.query.location) {
+      filters.location = {
+        contains: req.query.location, // Removed mode: 'insensitive'
+      };
     }
+
+    // Apply filters for pricePerNight
+    if (req.query.pricePerNight) {
+      const price = parseFloat(req.query.pricePerNight);
+      if (!isNaN(price)) {
+        filters.pricePerNight = price;
+      } else {
+        return res.status(400).json({ message: "Invalid pricePerNight value" });
+      }
+    }
+
+    // Combine filters using AND
+    const combinedFilters = {
+      AND: Object.entries(filters).map(([key, value]) => ({
+        [key]: value,
+      })),
+    };
+
+    
+
+    const properties = await getProperties(combinedFilters);
+
+    if (!properties.length) {
+      return res.status(404).json({ message: "No properties found matching the criteria" });
+    }
+
     res.status(200).json(properties);
   } catch (error) {
-    console.error('Error fetching properties:', error.message || error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error in GET /properties route:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

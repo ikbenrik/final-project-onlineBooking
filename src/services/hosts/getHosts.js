@@ -2,16 +2,18 @@ import prisma from '../../prisma/client.js';
 
 export const getHosts = async (filters) => {
   try {
-    const query = {};
-    if (filters && filters.name) {
-      query.name = {
+    // Constructing the filters dynamically
+    const whereClause = {};
+    if (filters.name) {
+      whereClause.name = {
         contains: filters.name,
-        mode: 'insensitive',
       };
     }
 
+    // Add more filter conditions here if needed in the future
+
     const hosts = await prisma.host.findMany({
-      where: query,
+      where: whereClause,
       select: {
         id: true,
         username: true,
@@ -25,7 +27,7 @@ export const getHosts = async (filters) => {
     });
     return hosts;
   } catch (error) {
-    console.error("Error fetching hosts from database:", error);
-    throw error; // Ensure the error is logged and thrown for route handling
+    console.error('Error fetching hosts:', error);
+    throw error;
   }
 };

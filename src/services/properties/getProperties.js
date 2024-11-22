@@ -1,24 +1,16 @@
 import prisma from '../../prisma/client.js';
 
-export const getProperties = async (filters) => {
+export const getProperties = async (filter = {}) => {
   try {
-    const { location, pricePerNight } = filters;
-
-    const whereClause = {};
-    if (location) {
-      whereClause.location = location;
-    }
-    if (pricePerNight) {
-      whereClause.pricePerNight = parseFloat(pricePerNight);
-    }
+    
 
     const properties = await prisma.property.findMany({
-      where: whereClause,
+      where: filter,
     });
 
     return properties;
   } catch (error) {
-    console.error("Error fetching properties:", error);
+    console.error("Error fetching properties in getProperties.js:", error.message);
     throw error;
   }
 };

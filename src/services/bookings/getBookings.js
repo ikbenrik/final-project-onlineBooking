@@ -1,31 +1,29 @@
 import prisma from '../../prisma/client.js';
 
-export const getBookings = async (filters = {}) => {
-  try {
-    const whereClause = {};
+export const getBookings = async (filters) => {
+    try {
+        console.log('Constructed filters for query:', filters);
 
-    // Voeg filters toe op basis van queryparameters
-    if (filters.userId) {
-      whereClause.userId = filters.userId;
+        // Validate filters
+        if (!filters || Object.keys(filters).length === 0) {
+            console.warn('No filters provided. Returning all bookings.');
+        }
+
+        // Perform the query
+        const bookings = await prisma.booking.findMany({
+            where: filters,
+        });
+
+        console.log('Database query executed. Result:', bookings);
+
+        if (bookings.length === 0) {
+            console.error('No bookings found. Filters used:', filters);
+            throw new Error('No bookings found for the given filters.');
+        }
+
+        return bookings;
+    } catch (error) {
+        console.error('Error in getBookings service:', error.message || error);
+        throw error;
     }
-
-    const bookings = await prisma.booking.findMany({
-      where: whereClause,
-    });
-
-    // Map schema fields to API response fields
-    return bookings.map((booking) => ({
-      id: booking.id,
-      userId: booking.userId,
-      propertyId: booking.propertyId,
-      checkinDate: booking.checkinDate, // Map to API field
-      checkoutDate: booking.checkoutDate, // Map to API field
-      numberOfGuests: booking.numberOfGuests,
-      totalPrice: booking.totalPrice,
-      bookingStatus: booking.bookingStatus,
-    }));
-  } catch (error) {
-    console.error('Error fetching bookings:', error.meta || error.message);
-    throw error;
-  }
 };

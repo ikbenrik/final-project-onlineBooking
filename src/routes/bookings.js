@@ -14,14 +14,32 @@ router.use(authenticateToken);
 // GET /bookings - Fetch all bookings
 router.get('/', async (req, res) => {
   try {
-    const bookings = await getBookings(req.query); // Pass query params for filtering
-    if (!Array.isArray(bookings) || bookings.length === 0) {
-      return res.status(404).json({ error: 'No bookings found' });
-    }
-    res.status(200).json(bookings);
+      const filters = {};
+
+      // Extract filters from query parameters
+      if (req.query.userId) {
+          filters.userId = req.query.userId;
+      }
+      if (req.query.propertyId) {
+          filters.propertyId = req.query.propertyId;
+      }
+
+      console.log('Received query parameters:', req.query);
+      console.log('Constructed filters for query:', filters);
+
+      // Fetch bookings based on filters
+      const bookings = await getBookings(filters);
+
+      return res.status(200).json(bookings);
   } catch (error) {
-    console.error("Error in GET /bookings route:", error);
-    res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error in GET /bookings route:', error.message || error);
+
+      if (error.message.includes('No bookings found')) {
+          return res.status(404).json({ message: error.message });
+      }
+
+      // Handle unexpected errors
+      return res.status(500).json({ message: 'Internal server error.' });
   }
 });
 

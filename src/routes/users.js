@@ -8,14 +8,35 @@ import { authenticateToken } from '../middleware/auth.js'; // Import the correct
 
 const router = express.Router();
 
-// GET /users - Fetch all users (protected route)
-router.get('/', authenticateToken, async (req, res) => {
+// GET /users - Fetch all users with optional filters
+router.get('/', async (req, res) => {
   try {
-    const users = await getUsers(); 
-    res.json(users.map(({ password, ...user }) => user)); // Exclude password
+    const filters = {};
+
+    if (req.query.username) {
+      // Using 'equals' to handle case-insensitivity
+      filters.username = req.query.username;
+    }
+
+    if (req.query.email) {
+      filters.email = req.query.email;
+    }
+
+    const users = await getUsers(filters);
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'No users found' });
+    }
+
+    const sanitizedUsers = users.map((user) => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+
+    res.status(200).json(sanitizedUsers);
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error in GET /users:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -30,8 +51,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
-    console.error("Error fetching user by ID:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error fetching user by ID:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -45,8 +66,8 @@ router.post('/', async (req, res) => {
     const newUser = await createUser(req.body);
     res.status(201).json(newUser);
   } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -84,7 +105,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
-    console.error("Error deleting user:", error);
+    console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });

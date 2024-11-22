@@ -8,16 +8,23 @@ import { authenticateToken } from '../middleware/auth.js'; // Import the authent
 
 const router = express.Router();
 
-// GET /hosts - Fetch all hosts
+// GET /hosts - Fetch all hosts or filtered hosts
 router.get('/', async (req, res) => {
   try {
-    const hosts = await getHosts();
+    const filters = {};
+    if (req.query.name) {
+      filters.name = req.query.name;
+    }
+
+    const hosts = await getHosts(filters);
+
     if (hosts.length === 0) {
       return res.status(404).json({ message: 'No hosts found' });
     }
+
     res.status(200).json(hosts);
   } catch (error) {
-    console.error("Error in GET /hosts:", error);
+    console.error('Error in GET /hosts:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
