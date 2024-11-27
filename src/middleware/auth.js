@@ -37,19 +37,17 @@ export const authenticateToken = (req, res, next) => {
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    // Allow the route handler to determine the response status
-    req.isAuthenticated = false; // Add a flag to indicate lack of authentication
-    return next();
+    // Token missing, respond with 401 Unauthorized
+    return res.status(401).json({ message: 'Access token is missing or invalid' });
   }
 
   try {
     // Verify the token
     const user = jwt.verify(token, JWT_SECRET);
     req.user = user; // Attach the decoded user to the request
-    req.isAuthenticated = true; // Indicate successful authentication
     next(); // Proceed to the next middleware/route handler
   } catch (error) {
-    req.isAuthenticated = false; // Mark as not authenticated
-    next(); // Proceed to the route handler
+    // Token invalid, respond with 403 Forbidden
+    return res.status(403).json({ message: 'Invalid token' });
   }
 };
