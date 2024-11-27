@@ -56,8 +56,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// POST /users - Create a new user (open route)
-router.post('/', async (req, res) => {
+// POST /users - Create a new user (protected route)
+router.post('/', authenticateToken, async (req, res) => {
   const { username, password, name, email } = req.body;
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'Username, password, and email are required' });

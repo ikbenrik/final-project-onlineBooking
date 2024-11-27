@@ -8,42 +8,39 @@ import { authenticateToken } from '../middleware/auth.js'; // Import the middlew
 
 const router = express.Router();
 
-// Use authentication middleware for all routes
-router.use(authenticateToken);
-
-// GET /bookings - Fetch all bookings
+// GET /bookings - Fetch all bookings (No auth required)
 router.get('/', async (req, res) => {
   try {
-      const filters = {};
+    const filters = {};
 
-      // Extract filters from query parameters
-      if (req.query.userId) {
-          filters.userId = req.query.userId;
-      }
-      if (req.query.propertyId) {
-          filters.propertyId = req.query.propertyId;
-      }
+    // Extract filters from query parameters
+    if (req.query.userId) {
+      filters.userId = req.query.userId;
+    }
+    if (req.query.propertyId) {
+      filters.propertyId = req.query.propertyId;
+    }
 
-      console.log('Received query parameters:', req.query);
-      console.log('Constructed filters for query:', filters);
+    console.log('Received query parameters:', req.query);
+    console.log('Constructed filters for query:', filters);
 
-      // Fetch bookings based on filters
-      const bookings = await getBookings(filters);
+    // Fetch bookings based on filters
+    const bookings = await getBookings(filters);
 
-      return res.status(200).json(bookings);
+    return res.status(200).json(bookings);
   } catch (error) {
-      console.error('Error in GET /bookings route:', error.message || error);
+    console.error('Error in GET /bookings route:', error.message || error);
 
-      if (error.message.includes('No bookings found')) {
-          return res.status(404).json({ message: error.message });
-      }
+    if (error.message.includes('No bookings found')) {
+      return res.status(404).json({ message: error.message });
+    }
 
-      // Handle unexpected errors
-      return res.status(500).json({ message: 'Internal server error.' });
+    // Handle unexpected errors
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
-// GET /bookings/:id - Fetch a booking by ID
+// GET /bookings/:id - Fetch a booking by ID (No auth required)
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -64,8 +61,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /bookings - Create a new booking
-router.post('/', async (req, res) => {
+// POST /bookings - Create a new booking (Requires auth)
+router.post('/', authenticateToken, async (req, res) => {
   const data = req.body;
 
   // Validation for required fields
@@ -105,8 +102,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT /bookings/:id - Update a booking by ID
-router.put('/:id', async (req, res) => {
+// PUT /bookings/:id - Update a booking by ID (Requires auth)
+router.put('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const data = req.body;
 
@@ -128,8 +125,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /bookings/:id - Delete a booking by ID
-router.delete('/:id', async (req, res) => {
+// DELETE /bookings/:id - Delete a booking by ID (Requires auth)
+router.delete('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
